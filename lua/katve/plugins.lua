@@ -13,7 +13,6 @@ require("katve.katpack").add({
 	"gh:lewis6991/gitsigns.nvim",
 	"gh:nvim-telescope/telescope.nvim",
 	"gh:folke/trouble.nvim",
-	"gh:folke/which-key.nvim",
 	"gh:echasnovski/mini.bracketed",
 	"gh:chentoast/marks.nvim",
 	"gh:chrisgrieser/nvim-rip-substitute",
@@ -29,7 +28,7 @@ require("katve.katpack").add({
 	"gh:williamboman/mason.nvim",
 	"gh:atiladefreitas/dooing",
 	"gh:NeogitOrg/neogit",
-	"gh:Tummetott/reticle.nvim",
+	"gh:mvllow/modes.nvim",
 
 	{ src = "gh:vyfor/cord.nvim",                          build = ":Cord update", },
 	{ src = "gh:nvim-treesitter/nvim-treesitter",          build = ":TSUpdate", },
@@ -59,9 +58,3 @@ require("neogen").setup()
 require("mason").setup()
 require("dooing").setup()
 require("neogit").setup()
-require("reticle").setup({
-	on_startup = {
-		cursorline = true,
-		cursorcolumn = true,
-	},
-})

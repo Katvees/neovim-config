@@ -6,7 +6,7 @@ local lsp_group = augroup("lsp", { clear = false })
 ---@param server_name string
 ---@param config vim.lsp.Config|nil
 local function lspconfig(server_name, config)
-	if config ~= nil then vim.lsp.config(server_name, config) end
+	vim.lsp.config(server_name, config or {})
 	vim.lsp.enable(server_name)
 end
 
@@ -126,24 +126,25 @@ autocmd("LspAttach", {
 	end,
 })
 
-lspconfig("arduino_language_server", {})
-lspconfig("jsonls", {})
-lspconfig("csharp_ls", {})
-lspconfig("basedpyright", {})
-lspconfig("jdtls", {})
-lspconfig("mesonlsp", {})
-lspconfig("neocmake", {})
-lspconfig("openscad-lsp", {})
-lspconfig("markdown_oxide", {})
-lspconfig("tombi", {})
-lspconfig("gdscript", {})
-lspconfig("bashls", {})
-lspconfig("gopls", {})
-lspconfig("serve_d", {})
-lspconfig("gh_actions_ls", {})
-lspconfig("yamlls", {})
-lspconfig("tsgo", {})
-lspconfig("djlint", {})
+lspconfig("arduino_language_server")
+lspconfig("jsonls")
+lspconfig("csharp_ls")
+lspconfig("basedpyright")
+lspconfig("jdtls")
+lspconfig("mesonlsp")
+lspconfig("neocmake")
+lspconfig("openscad-lsp")
+lspconfig("markdown_oxide")
+lspconfig("tombi")
+lspconfig("gdscript")
+lspconfig("bashls")
+lspconfig("gopls")
+lspconfig("serve_d")
+lspconfig("gh_actions_ls")
+lspconfig("yamlls")
+lspconfig("tsgo")
+lspconfig("djlint")
+lspconfig("zls")
 
 
 lspconfig("qml-ls", {
