@@ -1,3 +1,5 @@
+vim.loader.enable()
+
 require("katve.functions")
 require("katve.remap")
 
