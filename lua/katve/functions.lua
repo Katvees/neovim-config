@@ -25,7 +25,7 @@ end
 -- Set custom colors for theme
 function ColorMyPencils()
 	vim.api.nvim_set_hl(0, "cursorline", { bg = HighlightToHex("colorcolumn", "bg") })
-	vim.api.nvim_set_hl(0, "cursorcolumn", { bg = HighlightToHex("colorcolumn", "bg") })
+	vim.api.nvim_set_hl(0, "cursorcolumn", { link = "colorcolumn" })
 	vim.api.nvim_set_hl(0, "WinSeparator", { fg = HighlightToHex("TabLine", "bg") })
 end
 
@@ -195,7 +195,7 @@ for source, header in pairs(header_extensions) do
 	source_extensions[header] = source
 end
 
-function OpenHeaderOrSource(kind)
+function OpenHeaderOrSource(kind, split)
 	local extensions
 	local new_kind
 	if type(kind) ~= "string" then return end
@@ -222,15 +222,17 @@ function OpenHeaderOrSource(kind)
 		local confirm = vim.fn.confirm(new_kind .. " file does not exist, create " .. target .. "?\n", "&Yes\n&No")
 		if confirm == 0 or confirm == 2 then return end
 	end
-	vim.cmd.split(target)
+	if split and split ~= "" then
+		vim.cmd.split(target)
+	else
+		vim.cmd.edit(target)
+	end
 end
 
--- Open a split with the header file associated with the current source file
-function OpenHeader() OpenHeaderOrSource("header") end
+vim.api.nvim_create_user_command("OpenHeader", function(args) OpenHeaderOrSource("header", args.args) end, {
+	nargs = "?"
+})
 
-vim.api.nvim_create_user_command("OpenHeader", OpenHeader, {})
-
--- Open a split with the source file associated with the current header file
-function OpenSource() OpenHeaderOrSource("source") end
-
-vim.api.nvim_create_user_command("OpenSource", OpenSource, {})
+vim.api.nvim_create_user_command("OpenSource", function(args) OpenHeaderOrSource("source", args.args) end, {
+	nargs = "?"
+})

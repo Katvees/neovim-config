@@ -142,5 +142,5 @@ vim.keymap.set("c", "<C-BS>", "<C-w>")
 
 vim.keymap.set("n", "zn", vim.show_pos, { desc = "Show all the items at a given buffer position" })
 
-vim.keymap.set("n", "<leader>oh", OpenHeader, { desc = "Open header associated with current file" })
-vim.keymap.set("n", "<leader>os", OpenSource, { desc = "Open source associated with current file" })
+vim.keymap.set("n", "<leader>oh", ":OpenHeader<cr>", { desc = "Open header associated with current file" })
+vim.keymap.set("n", "<leader>os", ":OpenSource<cr>", { desc = "Open source associated with current file" })
