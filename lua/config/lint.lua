@@ -3,7 +3,9 @@ require("lint").linters_by_ft = {
 	json = { "eslint_d" },
 	javascript = { "eslint_d" },
 	typescript = { "eslint_d" },
-	gdscript =   { "gdlint" },
+	gdscript = { "gdlint" },
+	handlebars = { "djlint" },
+	html = { "djlint" },
 }
 
 vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {

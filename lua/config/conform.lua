@@ -11,6 +11,8 @@ require("conform").setup({
 		cs = { "clang-format" },
 		cpp = { "clang-format" },
 		qml = { "qmlformat6" },
+		handlebars = { "djlint" },
+		html = { "djlint" },
 	},
 
 	formatters = {
@@ -25,3 +27,7 @@ require("conform").setup({
 		}
 	}
 })
+
+vim.keymap.set("n", "<F3>", function()
+	require("conform").format({ async = true, lsp_format = "fallback" })
+end, { desc = "Format buffer" })
