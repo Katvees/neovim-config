@@ -23,6 +23,7 @@ require("katve.katpack").add({
 	"gh:nvim-mini/mini.ai",
 	"gh:EdenEast/nightfox.nvim",
 	"gh:mvllow/modes.nvim",
+	"gh:MunifTanjim/nui.nvim",
 
 	{ src = "gh:atiladefreitas/dooing",                    config = function() require("dooing").setup() end },
 	{ src = "gh:williamboman/mason.nvim",                  config = function() require("mason").setup() end },
