@@ -9,7 +9,7 @@ require('modes').setup({
 		replace = palette.orange.base,
 		visual = palette.blue.base,
 	},
-	line_opacity = 0.4,
+	line_opacity = 0.3,
 	set_cursor = false,
 	set_cursorline = true,
 	set_number = false,
