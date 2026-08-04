@@ -22,14 +22,13 @@ require("katve.katpack").add({
 	"gh:numToStr/Comment.nvim",
 	"gh:nvim-mini/mini.ai",
 	"gh:EdenEast/nightfox.nvim",
-	"gh:yorickpeterse/nvim-tree-pairs",
-	"gh:aserowy/tmux.nvim",
-	"gh:danymat/neogen",
-	"gh:williamboman/mason.nvim",
-	"gh:atiladefreitas/dooing",
-	"gh:NeogitOrg/neogit",
 	"gh:mvllow/modes.nvim",
 
+	{ src = "gh:atiladefreitas/dooing",                    config = function() require("dooing").setup() end },
+	{ src = "gh:williamboman/mason.nvim",                  config = function() require("mason").setup() end },
+	{ src = "gh:danymat/neogen",                           config = function() require("neogen").setup() end },
+	{ src = "gh:aserowy/tmux.nvim",                        config = function() require("tmux").setup() end },
+	{ src = "gh:yorickpeterse/nvim-tree-pairs",            config = function() require("tree-pairs").setup() end },
 	{ src = "gh:vyfor/cord.nvim",                          build = ":Cord update", },
 	{ src = "gh:nvim-treesitter/nvim-treesitter",          build = ":TSUpdate", },
 	{ src = "gh:stevearc/oil.nvim",                        dependencies = { "gh:nvim-mini/mini.icons" } },
@@ -45,16 +44,9 @@ require("katve.katpack").add({
 	{ src = "gh:folke/noice.nvim",                         dependencies = { "gh:ibhagwan/fzf-lua", "gh:MunifTanjim/nui.nvim" }, },
 	{ src = "gh:anuvyklack/windows.nvim",                  dependencies = { "gh:anuvyklack/middleclass", "gh:anuvyklack/animation.nvim" }, },
 	{ src = "gh:lukas-reineke/indent-blankline.nvim",      dependencies = { "gh:HiPhish/rainbow-delimiters.nvim" }, },
-	{ src = "gh:rachartier/tiny-code-action.nvim",         dependencies = { "gh:nvim-lua/plenary.nvim", "gh:nvim-telescope/telescope.nvim" },         opts = {}, },
+	{ src = "gh:rachartier/tiny-code-action.nvim",         dependencies = { "gh:nvim-lua/plenary.nvim", "gh:nvim-telescope/telescope.nvim" } },
 	{ src = "gh:nvim-telescope/telescope-fzy-native.nvim", dependencies = { { src = "gh:romgrk/fzy-lua-native", build = "make", } }, },
 	{ src = "gh:stevearc/aerial.nvim",                     dependencies = { "gh:nvim-treesitter/nvim-treesitter", "gh:nvim-tree/nvim-web-devicons" }, },
 	{ src = "gh:L3MON4D3/LuaSnip",                         dependencies = { "gh:rafamadriz/friendly-snippets" },                                      build = "make install_jsregexp", },
 	{ src = "gh:Saghen/blink.cmp",                         dependencies = { "gh:rafamadriz/friendly-snippets", },                                     version = vim.version.range("v1.*"), build = "cargo build --release", },
 })
-
-require("tree-pairs").setup()
-require("tmux").setup()
-require("neogen").setup()
-require("mason").setup()
-require("dooing").setup()
-require("neogit").setup()
