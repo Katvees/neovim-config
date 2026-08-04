@@ -238,17 +238,40 @@ vim.api.nvim_create_user_command("OpenSource", function(args) OpenHeaderOrSource
 })
 
 function Messages()
-	local mes_buf = vim.api.nvim_create_buf(false, true)
-	vim.api.nvim_buf_set_lines(mes_buf, 0, -1, false, vim.split(vim.fn.execute("messages"), "\n"))
-	vim.api.nvim_open_win(mes_buf, true,
-		{
-			relative = "win",
-			border = "rounded",
-			style = "minimal",
-			title = "Messages",
-			width = vim.o.columns - 14,
-			height = vim.o.lines - 30,
-			col = 7,
-			row = 5
+	local popup = require("nui.popup")({
+		enter = true,
+		relative = "editor",
+		border = {
+			style = "rounded",
+			text = { top = "Messages" },
+		},
+		position = {
+			col = "50%",
+			row = "30%",
+		},
+		size = {
+			width = "80%",
+			height = "80%",
+		},
+	})
+	vim.api.nvim_buf_set_lines(popup.bufnr, 0, 1, false, vim.split(vim.fn.execute("messages"), "\n"))
+	vim.keymap.set("n", "q", function() popup:unmount() end, { buf = popup.bufnr })
+	popup:mount()
+	popup:on("VimResized", function()
+		popup:update_layout({
+			position = {
+				col = "50%",
+				row = "30%",
+			},
+			size = {
+				width = "80%",
+				height = "80%",
+			},
 		})
+	end)
+	popup:on("BufLeave", function()
+		popup:unmount()
+	end, { once = true })
 end
+
+vim.api.nvim_create_user_command("Messages", Messages)
