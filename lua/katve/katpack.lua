@@ -3,7 +3,7 @@
 ---@field config Katpack.Config Katpack configuration options
 ---@field augroup integer Id of the autocommand group for Katpack
 ---@field init_done boolean False during neovim startup, true after `VimEnter`
-local Katpack = {
+local M = {
 	plugins = {},
 	config = {},
 	augroup = vim.api.nvim_create_augroup("KatpackEvent", { clear = true }),
@@ -13,7 +13,7 @@ local Katpack = {
 local plugins_mt = {}
 local name_lookup = {}
 plugins_mt.__index = name_lookup
-setmetatable(Katpack.plugins, plugins_mt)
+setmetatable(M.plugins, plugins_mt)
 
 ---@class Katpack.Config
 ---@field confirm? { install: boolean, update: boolean } Whether to ask confirmation for when installing plugins
@@ -40,6 +40,7 @@ local defaultConfig = {
 ---@field dependencies? (string|Katpack.Spec)[] Dependencies of the plugin, loaded before
 ---@field dependency? boolean If the plugin was added as a dependency
 ---@field module? string|false Name of the module the plugin provides. Used for reloading the plugin and loading opts. Optionally set setup if the plugin uses a non-standard setup path. Set to false to tell the plugin doesn't provide a module.
+---@field config? function Function to call when the plugin is loaded
 ---@field data nil The contents will be overridden
 
 local function tbl_deep_extend_inplace(dst, src)
@@ -57,14 +58,14 @@ end
 ---Add plugins to managed plugins
 ---@param specs (string|Katpack.Spec)[] Specs to add
 ---@param no_install? boolean Don't install plugins after adding them
-function Katpack.add(specs, no_install)
+function M.add(specs, no_install)
 	for _, spec in ipairs(specs) do
 		if type(spec) == "string" then
 			spec = { src = spec }
 		elseif spec.dependencies then
 			for _, dep in ipairs(spec.dependencies) do
 				if type(dep) == "string" then dep = { src = dep } end
-				Katpack.add({ vim.tbl_extend('force', dep, { dependency = true }) }, true)
+				M.add({ vim.tbl_extend('force', dep, { dependency = true }) }, true)
 			end
 		end
 
@@ -80,25 +81,25 @@ function Katpack.add(specs, no_install)
 			spec.module = spec.name:gsub("%.nvim$", "")
 		end
 
-		local existing = Katpack.plugins[spec.name]
+		local existing = M.plugins[spec.name]
 		if existing then
 			name_lookup[spec.name] = tbl_deep_extend_inplace(existing, spec)
 			if existing.dependency then
-				Katpack.plugins[spec.name].dependency = (existing.dependency or spec.dependency) and true or false
+				M.plugins[spec.name].dependency = (existing.dependency or spec.dependency) and true or false
 			end
 		else
 			plugins_mt.__index[spec.name] = spec
-			Katpack.plugins[#Katpack.plugins + 1] = spec
+			M.plugins[#M.plugins + 1] = spec
 		end
 	end
 
 	-- Install all newly added plugins
-	if not no_install then Katpack.install() end
+	if not no_install then M.install() end
 end
 
 ---@param specs? Katpack.Spec[] Plugins to install or install all new plugins
-function Katpack.install(specs)
-	specs = specs or Katpack.plugins
+function M.install(specs)
+	specs = specs or M.plugins
 	local plugin_specs = {}
 
 	for _, spec in ipairs(specs) do
@@ -109,7 +110,7 @@ function Katpack.install(specs)
 		}
 	end
 
-	vim.pack.add(plugin_specs, { confirm = Katpack.config.confirm.install })
+	vim.pack.add(plugin_specs, { confirm = M.config.confirm.install })
 
 	local packs = vim.pack.get(nil, { info = false })
 	local paths = {}; for _, v in ipairs(packs) do paths[v.spec.name] = v.path end
@@ -122,15 +123,24 @@ end
 
 ---@param names string[] List of plugins to update
 ---@param opts? vim.pack.keyset.update
-function Katpack.update(names, opts)
+function M.update(names, opts)
 	opts = opts or {}
-	opts.force = opts.force or not Katpack.config.confirm.update
+	opts.force = opts.force or not M.config.confirm.update
 	vim.pack.update(names, opts)
+end
+
+---@param names string[] List of plugins to reload
+function M.reload(names)
+	for _, name in ipairs(names) do
+		--- @type Katpack.Spec
+		local plugin = M.plugins[name]
+		if type(plugin.config) == "function" then plugin.config() end
+	end
 end
 
 ---@param names string[] List of plugins to delete
 ---@param force? boolean Delete plugin even if active
-function Katpack.delete(names, force)
+function M.delete(names, force)
 	if vim.tbl_isempty(names) or names == nil or names == "" then
 		names = vim.iter(vim.pack.get()):filter(function(pack) return pack.active == false end)
 			 :map(function(pack) return pack.spec.name end)
@@ -142,9 +152,9 @@ end
 --- Build the plugin
 ---@param plugin string|Katpack.Spec Plugin name or spec
 ---@return nil|boolean status, nil|integer exit_code, nil|vim.SystemObj system_object
-function Katpack.build(plugin)
+function M.build(plugin)
 	if type(plugin) == "string" then
-		plugin = Katpack.plugins[plugin]
+		plugin = M.plugins[plugin]
 		if not plugin then
 			vim.notify("Plugin not found", vim.log.levels.ERROR)
 			return false, nil, nil
@@ -170,67 +180,61 @@ end
 --- Return the list of plugins and their count
 ---@return Katpack.Spec[], integer count
 ---@param filter fun(spec: Katpack.Spec):boolean
-function Katpack.get(filter)
-	local plugins = filter and vim.iter(Katpack.plugins):filter(filter):totable() or Katpack.plugins
+function M.get(filter)
+	local plugins = filter and vim.iter(M.plugins):filter(filter):totable() or M.plugins
 	return vim.deepcopy(plugins, true), vim.tbl_count(plugins)
 end
 
 --- Initialize the plugins and generate user commands
-function Katpack.init()
+function M.init()
 	local function plugin_names()
-		return vim.tbl_values(vim.tbl_map(function(plugin) return plugin.name end, Katpack.plugins))
+		return vim.tbl_values(vim.tbl_map(function(plugin) return plugin.name end, M.plugins))
 	end
 	local function complete_name(arg)
 		return vim.tbl_filter(function(item) return item:find("^" .. arg) end, plugin_names())
 	end
 
 	-- Auto update and delete
-	if Katpack.config.auto_delete then
+	if M.config.auto_delete then
 		local inactive = vim.tbl_filter(function(plug_data) return not plug_data.active end, vim.pack.get())
 		vim.pack.del(vim.tbl_values(vim.tbl_map(function(plugin) return plugin.spec.name end, inactive)))
 	end
-	if Katpack.config.auto_update then
-		Katpack.update(plugin_names())
+	if M.config.auto_update then
+		M.update(plugin_names())
 	end
+
+	M.reload(plugin_names())
 
 	-- Define auto commands
 	vim.api.nvim_create_autocmd("PackChanged", {
-		group = Katpack.augroup,
+		group = M.augroup,
 		callback = function(ev)
-			local plugin = Katpack.plugins[ev.data.spec.name]
+			local plugin = M.plugins[ev.data.spec.name]
 			local kind = ev.data.kind
 			if plugin == nil then return end
-			if kind == "delete" and plugin.delete then plugin.delete() end
-			if kind == "update" and plugin.build then Katpack.build(plugin) end
-			if kind ~= "delete" and plugin.config then plugin.config() end
+			if kind == "delete" and type(plugin.delete) == "function" then plugin.delete() end
+			if kind == "update" and plugin.build then M.build(plugin) end
+			if kind ~= "delete" and type(plugin.config) == "function" then plugin.config() end
 		end
 	})
 
 	vim.api.nvim_create_autocmd("PackChangedPre", {
-		group = Katpack.augroup,
+		group = M.augroup,
 		callback = function(ev)
-			local plugin = Katpack.plugins[ev.data.spec.name] ---@type Katpack.Spec
+			local plugin = M.plugins[ev.data.spec.name] ---@type Katpack.Spec
 			if ev.data.kind ~= "delete" and plugin.init then plugin.init() end
 		end
 	})
 
-	vim.api.nvim_create_user_command("KatpackUpdate", function(args)
-		Katpack.update(#(args.fargs) > 0 and args.fargs or plugin_names())
-	end, { nargs = "*", complete = complete_name, desc = "Update plugins" })
-
-	vim.api.nvim_create_user_command("KatpackDelete", function(args)
-		Katpack.delete(args.fargs, true)
-	end, { nargs = "*", complete = complete_name, desc = "Delete plugins" })
-
 	vim.api.nvim_create_user_command("Katpack", function(args)
 		local iterator = vim.iter(args.fargs)
 		local operation = iterator:rev():pop():lower()
+		local pass_args = iterator:totable()
 		if operation == "update" then
-			vim.cmd("KatpackUpdate " .. iterator:join(" "))
+			M.update(#(pass_args) > 0 and pass_args or plugin_names())
 		elseif operation == "reload" then
-			vim.cmd("KatpackReload " .. iterator:join(" "))
 		elseif operation == "delete" then
-			vim.cmd("KatpackDelete " .. iterator:join(" "))
+			M.delete(pass_args, true)
 		else
 			vim.notify("Invalid operation \"" .. operation .. "\"")
 		end
@@ -250,14 +254,14 @@ function Katpack.init()
 	})
 
 	-- Set init_done to true
-	Katpack.init_done = true
+	M.init_done = true
 end
 
 ---@param config Katpack.Config
-function Katpack.setup(config)
-	Katpack.config = vim.tbl_deep_extend("force", defaultConfig, config)
+function M.setup(config)
+	M.config = vim.tbl_deep_extend("force", defaultConfig, config)
 	vim.api.nvim_create_autocmd("VimEnter",
-		{ group = Katpack.augroup, callback = vim.schedule_wrap(Katpack.init), once = true })
+		{ group = M.augroup, callback = vim.schedule_wrap(M.init), once = true })
 end
 
-return Katpack
+return M
