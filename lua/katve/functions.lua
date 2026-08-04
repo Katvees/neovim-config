@@ -236,3 +236,19 @@ vim.api.nvim_create_user_command("OpenHeader", function(args) OpenHeaderOrSource
 vim.api.nvim_create_user_command("OpenSource", function(args) OpenHeaderOrSource("source", args.args) end, {
 	nargs = "?"
 })
+
+function Messages()
+	local mes_buf = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(mes_buf, 0, -1, false, vim.split(vim.fn.execute("messages"), "\n"))
+	vim.api.nvim_open_win(mes_buf, true,
+		{
+			relative = "win",
+			border = "rounded",
+			style = "minimal",
+			title = "Messages",
+			width = vim.o.columns - 14,
+			height = vim.o.lines - 30,
+			col = 7,
+			row = 5
+		})
+end
