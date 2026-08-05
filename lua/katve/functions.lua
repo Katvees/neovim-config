@@ -33,7 +33,7 @@ ColorMyPencils()
 vim.api.nvim_create_user_command("ColorMyPencils", "lua ColorMyPencils()", { bang = true })
 
 --- Attach and format LSP Client to files of matching filetypes
----@param filetypes string|string[] filetypes to format
+---@param filetypes string|string[] filetypes to attach to
 ---@param client_name_or_id string|number|nil Name or id of the client, nil to use first attached to current buffer
 function AttachToFiletype(filetypes, client_name_or_id)
 	local client_id

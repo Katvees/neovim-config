@@ -67,21 +67,22 @@ autocmd("LspAttach", {
 		map("<F7>", function()
 			---@diagnostic disable-next-line: missing-parameter
 			if vim.lsp.buf_is_attached(0) then
+				if client ~= nil then
+					client:_restart()
+				end
+			else
+				print("No client attached to buffer")
+			end
+		end, "Restart LS")
+
+		map("<F8>", function()
+			---@diagnostic disable-next-line: missing-parameter
+			if vim.lsp.buf_is_attached(0) then
 				ReattachClients()
 			else
 				print("No client attached to buffer")
 			end
 		end, "Reattach clients to LS")
-
-		map("<F8>", function()
-			---@diagnostic disable-next-line: missing-parameter
-			if vim.lsp.buf_is_attached(0) then
-				local client_id = vim.lsp.get_clients({ bufnr = 0 })[1].id
-				AttachToFiletype({ vim.bo.filetype }, client_id)
-			else
-				print("No client attached to buffer")
-			end
-		end, "Attach clients and reformat")
 
 		map({ "gh", "<F9>" }, function()
 			inlay_hint_state = not vim.lsp.inlay_hint.is_enabled()
