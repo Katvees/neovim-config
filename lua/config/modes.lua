@@ -9,6 +9,7 @@ require('modes').setup({
 		insert = pal.bg3,
 		replace = pal.orange.base,
 		visual = pal.bg3,
+		select = pal.bg3,
 	},
 	line_opacity = {
 		copy = 0.4,
@@ -18,6 +19,7 @@ require('modes').setup({
 		insert = 1,
 		replace = 0.2,
 		visual = 1,
+		select = 1,
 	},
 	set_cursor = false,
 	set_cursorline = true,
