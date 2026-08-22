@@ -144,3 +144,5 @@ vim.keymap.set("n", "zn", vim.show_pos, { desc = "Show all the items at a given 
 
 vim.keymap.set("n", "<leader>oh", ":OpenHeader<cr>", { desc = "Open header associated with current file" })
 vim.keymap.set("n", "<leader>os", ":OpenSource<cr>", { desc = "Open source associated with current file" })
+
+vim.keymap.set("n", "<S-space>", AddTag)

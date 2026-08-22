@@ -275,3 +275,10 @@ function Messages()
 end
 
 vim.api.nvim_create_user_command("Messages", Messages)
+
+function AddTag()
+	vim.ui.input({ prompt = "Tag: " }, function(input)
+		vim.api.nvim_put({ "<" .. input .. ">" }, "b", false, true)
+		vim.api.nvim_put({ "</" .. input .. ">" }, "b", true, false)
+	end)
+end
