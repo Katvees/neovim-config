@@ -20,9 +20,11 @@ oil.setup({
 		relativenumber = false,
 	},
 
+	cleanup_delay_ms = 10000,
+
 	buf_options = {
 		buflisted = true,
-		bufhidden = "delete",
+		bufhidden = "hide",
 	},
 
 	float = {
